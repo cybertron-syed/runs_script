@@ -2,8 +2,9 @@ name: Run Python Script Daily
 
 on:
   schedule:
-    - cron: '0 10 * * *'  # This runs at 4:00 AM UTC every day
-
+    - cron: '* * * * *'  # This runs at 4:00 AM UTC every day
+    # - cron: '0 10 * * *'
+    
 jobs:
   run-script:
     runs-on: ubuntu-latest
@@ -16,10 +17,10 @@ jobs:
         with:
           python-version: '3.x'  # Specify the desired Python version
 
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt  # If you have dependencies listed
+      # - name: Install dependencies
+      #   run: |
+      #     python -m pip install --upgrade pip
+      #     pip install -r requirements.txt  # If you have dependencies listed
 
       - name: Run script
         run: python main.py  # Replace with your script's filename
