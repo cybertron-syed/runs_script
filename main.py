@@ -6,7 +6,9 @@ def read_count():
     """Read the current count from the file."""
     if os.path.exists(count_file):
         with open(count_file, 'r') as file:
-            return int(file.read().strip())
+            content = file.read().strip()
+            if content.isdigit():
+                return int(content)
     return 0
 
 def write_count(count):
