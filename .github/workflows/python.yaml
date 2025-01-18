@@ -2,7 +2,7 @@ name: Run Python Script Daily
 
 on:
   schedule:
-    - cron: '* * * * *'  # Runs every minute for testing
+    - cron: '0 10 * * *' 
   workflow_dispatch:  # Add manual trigger
 
 jobs:
