@@ -2,9 +2,9 @@ name: Run Python Script Daily
 
 on:
   schedule:
-    - cron: '* * * * *'  # This runs at 4:00 AM UTC every day
-    # - cron: '0 10 * * *'
-    
+    - cron: '* * * * *'  # Runs every minute for testing
+  workflow_dispatch:  # Add manual trigger
+
 jobs:
   run-script:
     runs-on: ubuntu-latest
@@ -15,12 +15,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
-          python-version: '3.x'  # Specify the desired Python version
-
-      # - name: Install dependencies
-      #   run: |
-      #     python -m pip install --upgrade pip
-      #     pip install -r requirements.txt  # If you have dependencies listed
+          python-version: '3.x'
 
       - name: Run script
         run: python main.py  # Replace with your script's filename
