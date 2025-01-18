@@ -1,6 +1,5 @@
 import os
 
-# Define the file where the count will be stored
 count_file = 'run_count.txt'
 
 def read_count():
@@ -8,7 +7,7 @@ def read_count():
     if os.path.exists(count_file):
         with open(count_file, 'r') as file:
             return int(file.read().strip())
-    return 0  # Return 0 if the file doesn't exist
+    return 0
 
 def write_count(count):
     """Write the updated count to the file."""
@@ -16,16 +15,9 @@ def write_count(count):
         file.write(str(count))
 
 def main():
-    # Read the current count
     count = read_count()
-    
-    # Increment the count
     count += 1
-    
-    # Write the new count back to the file
     write_count(count)
-    
-    # Print or log the current run count
     print(f"The script has run {count} times.")
 
 if __name__ == "__main__":
