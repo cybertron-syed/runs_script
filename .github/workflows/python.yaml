@@ -2,8 +2,8 @@ name: Run Python Script Daily
 
 on:
   schedule:
-    - cron: '0 0 * * *'  
-  workflow_dispatch:  
+    - cron: '0 0 * * *'  # Runs daily at midnight
+  workflow_dispatch:  # For manual testing
 
 jobs:
   run-script:
@@ -12,7 +12,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
         with:
-          persist-credentials: false  
+          persist-credentials: false  # Disable default token for security
 
       - name: Set up Python
         uses: actions/setup-python@v2
@@ -31,6 +31,5 @@ jobs:
         run: |
           git add run_count.txt
           git commit -m "Update run count"
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
           git push
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
