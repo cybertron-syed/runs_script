@@ -2,7 +2,7 @@ name: Run Python Script Daily
 
 on:
   schedule:
-    - cron: '0 0 * * *'  # Runs daily at midnight
+    - cron: '0 */12 * * *'  # 12 hours
   workflow_dispatch:  # For manual testing
 
 jobs:
