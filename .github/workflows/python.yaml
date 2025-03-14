@@ -1,35 +1,35 @@
-name: Run Python Script Daily
+# name: Run Python Script Daily
 
-on:
-  schedule:
-    - cron: '0 */24 * * *'  # 24 hours
-  workflow_dispatch:  # For manual testing
+# on:
+#   schedule:
+#     - cron: '0 */24 * * *'  # 24 hours
+#   workflow_dispatch:  # For manual testing
 
-jobs:
-  run-script:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-        with:
-          persist-credentials: false  # Disable default token for security
+# jobs:
+#   run-script:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Checkout repository
+#         uses: actions/checkout@v2
+#         with:
+#           persist-credentials: false  # Disable default token for security
 
-      - name: Set up Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: '3.x'
+#       - name: Set up Python
+#         uses: actions/setup-python@v2
+#         with:
+#           python-version: '3.x'
 
-      - name: Run script
-        run: python main.py
+#       - name: Run script
+#         run: python main.py
 
-      - name: Configure Git
-        run: |
-          git config --global user.name 'cybertron-syed'
-          git config --global user.email 'sdsyed46@gmail.com'
+#       - name: Configure Git
+#         run: |
+#           git config --global user.name 'cybertron-syed'
+#           git config --global user.email 'sdsyed46@gmail.com'
 
-      - name: Commit and push changes
-        run: |
-          git add run_count.txt
-          git commit -m "Update run count"
-          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
-          git push
+#       - name: Commit and push changes
+#         run: |
+#           git add run_count.txt
+#           git commit -m "Update run count"
+#           git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
+#           git push
