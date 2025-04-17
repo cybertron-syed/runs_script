@@ -1,0 +1,184 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Create a Lambda IAM Role with custom and managed policies, for CWL → S3 log forwarding
+
+Parameters:
+
+  ### Trust Policy ###
+  PrincipalType:
+    Type: String
+    Description: Select if using ServicePrincipal or IAMPrincipal
+    Default: ServicePrincipal
+    AllowedValues:
+      - ServicePrincipal
+      - IAMPrincipal
+
+  ServicePrincipal:
+    Type: String
+    Description: Principal name of the trusted service (e.g., lambda.amazonaws.com)
+    Default: lambda.amazonaws.com
+    AllowedValues:
+      - ec2.amazonaws.com
+      - lambda.amazonaws.com
+      - s3.amazonaws.com
+      - na.amazonaws.com
+    AllowedPattern: "^([a-zA-Z0-9-]+\\.amazonaws\\.com)$"
+    ConstraintDescription: Must be a valid AWS service principal (e.g., lambda.amazonaws.com)
+
+  IAMPrincipal:
+    Type: String
+    Description: ARN of the trusted IAM resource (used if PrincipalType is IAMPrincipal)
+    Default: 'arn:aws-us-gov:iam::123456789011:role/ExampleRole'
+    AllowedPattern: "^arn:aws-us-gov:iam::[0-9]{12}:role/[a-zA-Z0-9-_]+$"
+    ConstraintDescription: Must be a valid IAM Role ARN
+
+  ### IAM Policies ###
+  NewPolicyPath:
+    Type: String
+    Description: S3 URI of the JSON policy to create a managed policy
+    Default: 's3://peo-cloud-iam/tenant/tesseract/policies/tesseract-cwl-copy-policy.json'
+
+  PolicyARN1:
+    Type: String
+    Default: 'arn:aws-us-gov:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole'
+  PolicyARN2:
+    Type: String
+    Default: 'none'
+  PolicyARN3:
+    Type: String
+    Default: 'none'
+  PolicyARN4:
+    Type: String
+    Default: 'none'
+  PolicyARN5:
+    Type: String
+    Default: 'none'
+  PolicyARN6:
+    Type: String
+    Default: 'none'
+  PolicyARN7:
+    Type: String
+    Default: 'none'
+  PolicyARN8:
+    Type: String
+    Default: 'none'
+  PolicyARN9:
+    Type: String
+    Default: 'none'
+
+  ### Tags ###
+  Name:
+    Type: String
+    Default: cwl-copy
+  Department:
+    Type: String
+    Default: dddd
+  ProgramName:
+    Type: String
+    Default: peocloud
+    AllowedValues:
+      - 'xxxx'
+      - 'ooocloud'
+      - 'peocloud'
+  Environment:
+    Type: String
+    Default: prod
+    AllowedValues:
+      - dev
+      - test
+      - pre-prod
+      - prod
+      - sandbox
+  ApplicationName:
+    Type: String
+    Default: tesseract
+  ServiceType:
+    Type: String
+    Default: tenant
+    AllowedValues:
+      - tenant
+      - coreservice
+  ProductOwner:
+    Type: String
+    Default: 'James Smith'
+
+Conditions:
+  PrincipalTypeIsService: !Equals [!Ref PrincipalType, "ServicePrincipal"]
+  IsEC2Service: !Equals [!Ref ServicePrincipal, "ec2.amazonaws.com"]
+
+  Policy1Valid: !Not [!Equals [!Ref PolicyARN1, 'none']]
+  Policy2Valid: !Not [!Equals [!Ref PolicyARN2, 'none']]
+  Policy3Valid: !Not [!Equals [!Ref PolicyARN3, 'none']]
+  Policy4Valid: !Not [!Equals [!Ref PolicyARN4, 'none']]
+  Policy5Valid: !Not [!Equals [!Ref PolicyARN5, 'none']]
+  Policy6Valid: !Not [!Equals [!Ref PolicyARN6, 'none']]
+  Policy7Valid: !Not [!Equals [!Ref PolicyARN7, 'none']]
+  Policy8Valid: !Not [!Equals [!Ref PolicyARN8, 'none']]
+  Policy9Valid: !Not [!Equals [!Ref PolicyARN9, 'none']]
+
+Resources:
+
+  ManagedPolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      ManagedPolicyName: !Join ["-", [!Ref ProgramName, !Ref ApplicationName, !Ref Name, "policy"]]
+      Description: !Join ["-", [!Ref ProgramName, !Ref ApplicationName, !Ref Name, "policy"]]
+      PolicyDocument:
+        Fn::Transform:
+          Name: AWS::Include
+          Parameters:
+            Location: !Ref NewPolicyPath
+
+  ServiceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Join ["-", [!Ref ProgramName, !Ref ApplicationName, !Ref Name, "role"]]
+      Tags:
+        - Key: Name
+          Value: !Join ["-", [!Ref ProgramName, !Ref ApplicationName, !Ref Name, "role"]]
+        - Key: department
+          Value: !Ref Department
+        - Key: program_name
+          Value: !Ref ProgramName
+        - Key: environment
+          Value: !Ref Environment
+        - Key: application
+          Value: !Ref ApplicationName
+        - Key: service_type
+          Value: !Ref ServiceType
+        - Key: product_owner
+          Value: !Ref ProductOwner
+      AssumeRolePolicyDocument:
+        Fn::If:
+          - PrincipalTypeIsService
+          - Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Principal:
+                  Service: !Ref ServicePrincipal
+                Action: sts:AssumeRole
+          - Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Principal:
+                  AWS: !Ref IAMPrincipal
+                Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - !Ref ManagedPolicy
+        - !If [Policy1Valid, !Ref PolicyARN1, !Ref "AWS::NoValue"]
+        - !If [Policy2Valid, !Ref PolicyARN2, !Ref "AWS::NoValue"]
+        - !If [Policy3Valid, !Ref PolicyARN3, !Ref "AWS::NoValue"]
+        - !If [Policy4Valid, !Ref PolicyARN4, !Ref "AWS::NoValue"]
+        - !If [Policy5Valid, !Ref PolicyARN5, !Ref "AWS::NoValue"]
+        - !If [Policy6Valid, !Ref PolicyARN6, !Ref "AWS::NoValue"]
+        - !If [Policy7Valid, !Ref PolicyARN7, !Ref "AWS::NoValue"]
+        - !If [Policy8Valid, !Ref PolicyARN8, !Ref "AWS::NoValue"]
+        - !If [Policy9Valid, !Ref PolicyARN9, !Ref "AWS::NoValue"]
+
+  RootInstanceProfile:
+    Condition: IsEC2Service
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Path: /
+      InstanceProfileName: !Join ["-", [!Ref ProgramName, !Ref ApplicationName, !Ref Name, "profile"]]
+      Roles:
+        - !Ref ServiceRole
